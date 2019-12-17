@@ -1,9 +1,6 @@
-# Marketplace
+# BackEnd
 To start the webserver, inside the projekt folder open a terminal and run: "npm run dev" without the " " citation marks.
-The host can be accessed through localhost:1337
-localhost:1337/register
-localhost:1337/login
-localhost:1337/dashboard
+
 
 # Dokumentera Händelser Marketplace
 :coffee: :pizza: :pizza: :coffee: :smiley: 
