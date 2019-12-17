@@ -2,7 +2,7 @@
 To start the webserver, inside the projekt folder open a terminal and run: "npm run dev" without the " " citation marks.
 
 
-# Dokumentera Händelser Marketplace
+# Dokumentera Händelser
 :coffee: :pizza: :pizza: :coffee: :smiley: 
 
 2019/12/16: Ändrat validation token till ett 6 siffrigt tal. Validering funkar nu.
