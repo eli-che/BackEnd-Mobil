@@ -9,7 +9,7 @@ To start the webserver, inside the projekt folder open a terminal and run: "npm 
 
 2019/12/15: Lagt till login system och "Validation token" och "Active" status på user database. Validation token ska användas för att verifiera användarens email. Token skickas till användarens email och när han sedan följer länken så kommer hans "Active" status att ändras till true så att personen kan logga in.
 
-2019/12/14: Lagt till grunden med mera. Views, layouts, config, databas connection och registernings system.
+2019/12/14: Lagt till grunden med mera. Config, databas connection och registernings system.
 
 Dokumentation saker som ska göras::
 
