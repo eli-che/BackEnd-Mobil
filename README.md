@@ -23,7 +23,8 @@ Dokumentation saker som ska göras::
 - Saker som är klara men problem finns!
 + Saker som är klara och implementerade!
 
-- Login System inte klart
+- Login Session not persisten on server restart. Users have to loggin again after a restart. Save the session in database.
++ Login System inte Klart
 # Always kill a proccess after it's done retriving data. Like when you retrieve a chat, you dont have to keep the connection up. You re-establish when needed.
 - Check that the same email doesn't get registerd just because one has uppercase and the other one lowercase, same goes for username
 # Open source AI som förbjuder pornografiskt innehåll från att laddas upp.
