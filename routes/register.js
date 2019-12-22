@@ -3,8 +3,8 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const randomInt = require('random-int');
 
-// User model
-const User = require('../models/User');
+// DB Config
+const client = require('../config/keys');
 
 
 // Register Handle
@@ -15,82 +15,63 @@ router.post('/register', (req, res) => {
 
     // Check Required Fields
     if (!username || !email || !password || !password2){
-        res.send({status: false, msg: 'Please fill in all fields'});
-        return;
+        return res.send({status: false, msg: 'Please fill in all fields'});
     }
 
     // Check passwords match
     if(password !== password2) {
-        res.send({status: false, msg: 'Passwords do not match'});
-        return;
+        return res.send({status: false, msg: 'Passwords do not match'});
+        
     }
 
     // Check pass length
     if(password.length < 6) {
-        res.send({status: false, msg: 'Password should be at least 6 characters'});
-        return;
-    }
-
-  /*  if(errors.length > 0) {
-        console.log("fail4");
-        res.render('register', {
-            errors,
-            username,
-            email,
-        });
-    } */
-    // else { 
-        
-        User.findOne({ username: username })
-        .then(user => {
-            if(user) {
-            // Username exists
-            res.send({status: false, msg: 'Username is already registerd'});
-            return;
-        } else { 
-            User.findOne({ email: email })
-            .then(user => {
-                if(user) {
-                // Email exists
-                res.send({status: false, msg: 'Email is already registerd '});
-                return;
-            } else {
-                const newUser = new User({
-                    username,
-                    email,
-                    password
-                });
+        return res.send({status: false, msg: 'Password should be at least 6 characters'});
     
-                //Generate validation token
-                const val_token = randomInt(111111, 999999);
-                newUser.val_token = val_token;
-                
-                // Flag Account as inactive
-                newUser.active = false;
+    }
+    const query = 'select username from user.credentials where username = ?';
+    client.execute(query, [username], function(err, result) {
+        if (result.rowLength > 0) {
+            return res.send({status: false, msg: 'Username is already registerd'});
+        } else {
+            const query = 'select email from user.email where email = ?';
+            client.execute(query, [email], function(err, result) {
+                if (result.rowLength > 0) {
+                    return res.send({status: false, msg: 'Email is already registerd '});
+                        } else { 
+                            // create user
+                            //Generate validation token
+                            const validate_code = randomInt(111111, 999999);
+                            //Hash password
+                            bcrypt.genSalt(10, (err, salt) => 
+                            bcrypt.hash(password, salt, (err, hash) => {
+                            if(err) throw err;
+                                // Set password to hashed
+                                // INSERT USER
+                                    const query1 = 'INSERT INTO user.credentials (username, email, password, validate_code, active, date) VALUES (?, ?, ?, ?, ?, ?)';
+                                    const query2 = 'INSERT INTO user.email (email, username) VALUES (?, ?)';
+                                    const queries = [
+                                    { query: query1, params: [username, email, hash, validate_code.toString(), false, new Date()] },
+                                    { query: query2, params: [email, username] } 
+                                    ];
+                                    client.batch(queries)
+                                    .then(function() {
+                                        return res.send({status: true, msg: 'User Created'});
+                                    })
+                                    .catch(function(err) {
+                                        return res.send({status: false, msg: 'User Creation Failed'});
+                                        console.log(err);
+                                    });
+                            }));
+                        }
+
+            });
 
 
-                //Hash password
-                bcrypt.genSalt(10, (err, salt) => 
-                bcrypt.hash(newUser.password, salt, (err, hash) => {
-                    if(err) throw err;
-                    // Set password to hashed
-                    newUser.password = hash;
-                    // Save user
-                    newUser.save()
-                        .then(user => {
-                            console.log("Redirect Here to logged in page.");
-                        //    req.flash('success_msg', 'You are now registered');
-                        //    res.redirect('/login');
-                        })
-                        .catch(err => console.log(err));
-                }))
-                console.log(newUser)
-                }
-            }); 
-            } 
-        }); 
 
- //    } 
+        }
+
+    });
 
 });
 

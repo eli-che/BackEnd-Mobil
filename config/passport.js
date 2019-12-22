@@ -1,47 +1,53 @@
 const LocalStrategy = require('passport-local').Strategy;
-const mongoose = require('mongoose');
+const cassandra = require('cassandra-driver');
 const bcrypt = require('bcryptjs');
 
-// Load User Model
-const User = require('../models/User');
+// DB Config
+const client = require('../config/keys');
 
-module.exports = function(passport) {
+module.exports = function(passport){
     passport.use(
-        new LocalStrategy({ usernameField: 'username' }, (username, password, done) => {
-        // Match User
-        User.findOne({ username: username})
-            .then(user => {
-                if(!user){
-                    return done(null, false, {message: 'Det angivna kontonamnet eller lösenordet är felaktigt.'});
-                }
-
-                if(!user.active){
-                    return done(null, false, {message: 'Du måste bekräfta Epost.'});
-                }
+        new LocalStrategy({usernameField: 'username'}, (username, password, done) => {
+            // Find the "user" by username
+            const query = 'select * from user.credentials where username = ?';
+            client.execute(query, [username], function(err, result) {
+                if (result.rowLength == 0) {
+                    console.log("Check 1");
+                    return done(null, false, {status: false, msg: 'Det angivna kontonamnet eller lösenordet är felaktigt.'});
+                } else {
+                
+                // Check if account active later, currently ignoring.
+                
                 // Match password
-                bcrypt.compare(password, user.password, (err, isMatch) => {
+                    
+                bcrypt.compare(password, result.rows[0].password, (err, isMatch) => {
                     if(err) throw err;
 
                     if(isMatch){
-                        return done(null, user);
+                        return done(null, result.rows[0]);
                     } else {
-                        return done(null, false, {message: 'Det angivna kontonamnet eller lösenordet är felaktigt.'});
+                        return done(null, false, {status: false, msg: 'Det angivna kontonamnet eller lösenordet är felaktigt.'});
                     }
-                });
+                }); 
+                
+                }
 
-            })
-            .catch(err => console.log(err));
+            });
+
         })
     );
 
     passport.serializeUser((user, done) => {
-        done(null, user.id);
+        done(null, user.username);
       });
       
-      passport.deserializeUser(function(id, done) {
-        User.findById(id, (err, user) => {
-          done(err, user);
+      passport.deserializeUser(function(username, done) {
+        const query = 'select * from user.credentials where username = ?';
+        client.execute(query, [username], function(err, result) 
+        {
+            done(err, result.rows[0]);
         });
-      });
 
+      });
 }
+

@@ -1,10 +1,19 @@
 const express = require('express');
-const expressLayouts = require('express-ejs-layouts')
 const app = express();
-const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
+
+// DB Config
+const client = require('./config/keys');
+
+//Error Handler / Crash Handler
+process.on('uncaughtException', function(ex) {
+  // Prevent Crash;
+  console.log("Crash");
+  console.log(ex);
+});
+
 
 //Json parser
 app.use(bodyParser.json());
@@ -14,14 +23,6 @@ app.use(express.urlencoded({ extended: false }))
 
 // Passport config (include)
 require('./config/passport')(passport);
-
-// DB Config
-const db = require('./config/keys').MongoURI;
-
-// Connect to Mongo
-mongoose.connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('MongoDB Connected'))
-    .catch(err => console.log(err));
 
 
 // Express Session
@@ -41,6 +42,7 @@ app.use('/', require('./routes/index'));
 app.use('/', require('./routes/register'));
 app.use('/', require('./routes/login'));
 app.use('/', require('./routes/validate'));
+app.use('/', require('./routes/friendreq'));
 
 
 const PORT = process.env.port || 8080;

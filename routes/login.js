@@ -2,25 +2,23 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 
-// Login Page
-router.get('/login', (req, res) => res.render('Login'));
-
 // Login Handle (Post) 
-router.post('/login', (req, res, next) => {
-    passport.authenticate('local', {
-        successRedirect: '/dashboard',
-        failureRedirect: '/login',
-        failureFlash: true
+router.post('/login', function(req, res, next) {
+    passport.authenticate('local', function(err, user, info) {
+      if (err) { return next(err); }
+      if (!user)
+       { return res.send({status: false, msg: 'Login Failed'}); }
+      req.logIn(user, function(err) {
+        if (err) { return next(err); }
+        return res.send({status: true, msg: 'Login Successful'});
+      });
     })(req, res, next);
-}); 
-
-
+  });
 
 // Logout Handle
 router.get('/logout', (req,res) => {
     req.logout();
-    req.flash('success_msg', 'You have logged out');
-    res.redirect('/login');
+    return res.send({status: true, msg: 'Logout Successful'});
 });
 
 module.exports = router;

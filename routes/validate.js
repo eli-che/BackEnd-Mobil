@@ -1,54 +1,45 @@
 const express = require('express');
 const router = express.Router();
 
-//User model
-const User = require('../models/User');
+// DB Config
+const client = require('../config/keys');
 
-
-// Validate Page
-router.get('/validate', (req, res) => res.render('validate'));
-
+// Validate Email
 
 router.post('/validate', (req, res) => {
-    const {email, validate_code} = req.body;
+    const {username, validate_code} = req.body;
     let errors = [];
-
     // Check Required Fields
-    if (!email || !validate_code){
-        errors.push({ msg: 'Please fill in all fields' });
+    if (!validate_code){
+        return res.send({status: false, msg: 'Please Enter Code'});
     }
 
-    if(errors.length > 0) {
-        res.render('validate', {
-            errors,
-            email,
-        });
-    }
-    else { 
-        
-        User.findOne({ email: email})
-            .then(user => {
-                if(user){
-                    if(validate_code == user.val_token){
-                        user.active = true;
-                        user.save()
-                        .then(user => {
-                            req.flash('success_msg', 'Email confirmed');
-                            res.redirect('/login');
+    const query = 'select validate_code from user.credentials where username = ?';
+    client.execute(query, [username])
+    .then(function(result) {
+        if (result.rowLength > 0) {
+        if (result.rows[0].validate_code != validate_code) {
+            return res.send({status: false, msg: 'Wrong token'});
+        }
+            else {
+                        const query = 'UPDATE user.credentials SET active=? WHERE username=?';
+                        client.execute(query, [true, username])
+                        .then(function(result) {
+                            return res.send({status: true, msg: 'User Email Validated'});
                         })
-                        .catch(err => console.log(err));
-                        console.log("Test:", user.active);
-                    }
-                    else {
-                        errors.push({ msg: 'Wrong Code' });
-                        res.render('validate', {
-                            errors,
-                            email,
+                        .catch(function(err) {
+                            return res.send({status: false, msg: 'User Email Validation Went Wrong'});
                         });
-                    }
-                }
-            })
-    } 
+            }
+
+        }   else {
+            return res.send({status: false, msg: 'User Email Validation, Nothing Matches!'});
+        }
+    })
+    .catch(function(err) {
+        console.log(err);
+        return res.send({status: false, msg: 'User Email Validation, cannot find username!'});
+    });
 
 });
 

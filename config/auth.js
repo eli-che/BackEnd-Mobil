@@ -4,7 +4,6 @@ module.exports = {
         if(req.isAuthenticated()) {
             return next();
         }
-        req.flash('error_msg', 'You must be logged in');
-        res.redirect('/login');
+        return res.send({status: false, msg: 'You are not logged in'});
     }
 }
