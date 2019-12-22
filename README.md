@@ -5,6 +5,8 @@ To start the webserver, inside the projekt folder open a terminal and run: "npm 
 # Dokumentera Händelser
 :coffee: :pizza: :pizza: :coffee: :smiley: 
 
+2019/12/22: Allt om-kodat till cassandra databas. Inkluderar (Registering, Login, Logout, Email Validering).
+
 2019/12/16: Ändrat validation token till ett 6 siffrigt tal. Validering funkar nu.
 
 2019/12/15: Lagt till login system och "Validation token" och "Active" status på user database. Validation token ska användas för att verifiera användarens email. Token skickas till användarens email och när han sedan följer länken så kommer hans "Active" status att ändras till true så att personen kan logga in.
