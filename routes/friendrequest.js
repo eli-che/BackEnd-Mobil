@@ -5,7 +5,7 @@ const { ensureAuthenticated } = require('../config/auth');
 const client = require('../config/keys');
 
 
-router.get('/friendlist', ensureAuthenticated, function (req, res) {
+router.get('/friendlistview', ensureAuthenticated, function (req, res) {
     // Select friends from the user requesting his friend list
     const query = 'select friend from user.friendlist where username = ?';
     client.execute(query, [req.user.username], { prepare: true }, function(err, result) {
@@ -17,9 +17,9 @@ router.get('/friendlist', ensureAuthenticated, function (req, res) {
     });
 });
 
-router.get('/friendrequest', ensureAuthenticated, function (req, res) {
+router.get('/friendrequestview', ensureAuthenticated, function (req, res) {
     // Select friend requests from a user requesting his receieved friend requests.
-    const query = 'select username from user.viewfriendreq where friendreqto = ?';
+    const query = 'select usernamesender from user.friendrequest where usernamereceiver = ?';
     client.execute(query, [req.user.username], { prepare: true }, function(err, result) {
         if (result.rowLength == 0){
             return res.send({status: false, msg: 'No pending friend-requests'});
@@ -38,9 +38,9 @@ router.post('/friendrequestaccept', ensureAuthenticated, function (req, res) {
         return res.send({status: false, msg: 'Friend Field Missing'});
     }
 
-    // Check if a friend request actually exists.
-    const query = 'select * from user.friendrequest where username = ? and friendreqto = ?';
-    client.execute(query, [friend, req.user.username], { prepare: true }, function(err, result) {
+    // Check if a friend request actually exists before accepting.
+    const query = 'select * from user.friendrequest where usernamereceiver = ? and usernamesender = ?';
+    client.execute(query, [req.user.username, friend], { prepare: true }, function(err, result) {
         if (result.rowLength == 0) {
             // The friend request doesn't actually exist.
             return res.send({status: false, msg: 'Something went wrong adding friend'});
@@ -48,8 +48,8 @@ router.post('/friendrequestaccept', ensureAuthenticated, function (req, res) {
             // The friend request exists
             const query1 = 'INSERT INTO user.friendlist (username, friend) VALUES (?, ?)';
             const query2 = 'INSERT INTO user.friendlist (username, friend) VALUES (?, ?)';
-            const query3 = 'DELETE FROM user.friendrequest where username = ? and friendreqto = ?'
-            const query4 = 'DELETE FROM user.friendrequest where username = ? and friendreqto = ?'
+            const query3 = 'DELETE FROM user.friendrequest where usernamereceiver = ? and usernamesender = ?'
+            const query4 = 'DELETE FROM user.friendrequest where usernamereceiver = ? and usernamesender = ?'
             const queries = [
             { query: query1, params: [req.user.username, friend] },
             { query: query2, params: [friend, req.user.username] },
@@ -70,7 +70,7 @@ router.post('/friendrequestaccept', ensureAuthenticated, function (req, res) {
 
 });
 
-router.post('/friendrequest', ensureAuthenticated, function (req, res) {
+router.post('/friendrequestsend', ensureAuthenticated, function (req, res) {
     const {friend} = req.body;
     let errors = [];
 
@@ -91,8 +91,8 @@ router.post('/friendrequest', ensureAuthenticated, function (req, res) {
         return res.send({status: false, msg: 'You are already friends'});
     } else { 
     //Check if the friend Request already exists
-    const query = 'select * from user.friendrequest where username = ? and friendreqto = ?';
-    client.execute(query, [req.user.username, friend], { prepare: true }, function(err, result) {
+    const query = 'select * from user.friendrequest where usernamereceiver = ? and usernamesender = ?';
+    client.execute(query, [friend, req.user.username], { prepare: true }, function(err, result) {
         if (result.rowLength > 0) {
             return res.send({status: false, msg: 'A Friend Request Is Already Pending'});
         } else {
@@ -103,8 +103,8 @@ router.post('/friendrequest', ensureAuthenticated, function (req, res) {
            if (result.rowLength == 0){
             return res.send({status: false, msg: 'Something went wrong sending friend request'});
            } else { 
-            const query = 'insert into user.friendrequest (username, friendreqto) values (?, ?)';
-            client.execute(query, [req.user.username, friend], { prepare: true }, function(err, result) { 
+            const query = 'insert into user.friendrequest (usernamereceiver, usernamesender) values (?, ?)';
+            client.execute(query, [friend, req.user.username], { prepare: true }, function(err, result) { 
                 return res.send({status: true, msg: 'Friend Request Sent'});
             });
         }

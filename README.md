@@ -8,6 +8,8 @@ To start the webserver, inside the projekt folder open a terminal and run: "npm 
 #The controll as to which if a user is signed in is in, config/auth.js
 #Anything that requires the user be logged in as have ensureAuthenticated in GET and POST.
 
+2019/12/24: Uppdatera Friend System till en effektivare lösning.
+
 2019/12/23: Friend System tillagt samt updaterat Validering system. (Kolla commit på detta datum)
 
 2019/12/22: Allt om-kodat till cassandra databas. Inkluderar (Registering, Login, Logout, Email Validering).
@@ -31,7 +33,7 @@ Dokumentation saker som ska göras::
 + Saker som är klara och implementerade!
 
 # Change any checks on user.credentials to user.data, don't have to query their login to check if user exists for safety purposes.
-- Update time stamp to yyyy-mm-dd hh:mm:ss
+- Update time stamp to yyyy-mm-dd hh:mm:ss on all columns thats store timestamps
 - Login Session not persisten on server restart. Users have to loggin again after a restart. Save the session in database.
 + Login System Klart
 + Registering System Klart
