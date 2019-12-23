@@ -1,29 +1,32 @@
 const express = require('express');
 const router = express.Router();
+const { ensureAuthenticated } = require('../config/auth');
 
 // DB Config
 const client = require('../config/keys');
 
 // Validate Email
-
-router.post('/validate', (req, res) => {
-    const {username, validate_code} = req.body;
+router.post('/validate', ensureAuthenticated, (req, res) => {
+    const {validate_code} = req.body;
     let errors = [];
     // Check Required Fields
     if (!validate_code){
         return res.send({status: false, msg: 'Please Enter Code'});
     }
-
+    // Check the validate_code
     const query = 'select validate_code from user.credentials where username = ?';
-    client.execute(query, [username])
+    client.execute(query, [req.user.username], { prepare: true })
     .then(function(result) {
         if (result.rowLength > 0) {
+            // Check's that we actually get something returned 
         if (result.rows[0].validate_code != validate_code) {
+            // The validate_code doesn't match the one in the database.
             return res.send({status: false, msg: 'Wrong token'});
         }
             else {
+                // Set the user/email to active when the user has validated.
                         const query = 'UPDATE user.credentials SET active=? WHERE username=?';
-                        client.execute(query, [true, username])
+                        client.execute(query, [true, req.user.username], { prepare: true })
                         .then(function(result) {
                             return res.send({status: true, msg: 'User Email Validated'});
                         })
@@ -38,7 +41,7 @@ router.post('/validate', (req, res) => {
     })
     .catch(function(err) {
         console.log(err);
-        return res.send({status: false, msg: 'User Email Validation, cannot find username!'});
+        return res.send({status: false, msg: 'User Email Validation, Nothing Matches!! '});
     });
 
 });

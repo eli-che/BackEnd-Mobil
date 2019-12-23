@@ -30,12 +30,12 @@ router.post('/register', (req, res) => {
     
     }
     const query = 'select username from user.credentials where username = ?';
-    client.execute(query, [username], function(err, result) {
+    client.execute(query, [username], { prepare: true }, function(err, result) {
         if (result.rowLength > 0) {
             return res.send({status: false, msg: 'Username is already registerd'});
         } else {
             const query = 'select email from user.email where email = ?';
-            client.execute(query, [email], function(err, result) {
+            client.execute(query, [email], { prepare: true }, function(err, result) {
                 if (result.rowLength > 0) {
                     return res.send({status: false, msg: 'Email is already registerd '});
                         } else { 
@@ -54,13 +54,12 @@ router.post('/register', (req, res) => {
                                     { query: query1, params: [username, email, hash, validate_code.toString(), false, new Date()] },
                                     { query: query2, params: [email, username] } 
                                     ];
-                                    client.batch(queries)
+                                    client.batch(queries, { prepare: true })
                                     .then(function() {
                                         return res.send({status: true, msg: 'User Created'});
                                     })
                                     .catch(function(err) {
                                         return res.send({status: false, msg: 'User Creation Failed'});
-                                        console.log(err);
                                     });
                             }));
                         }

@@ -10,9 +10,8 @@ module.exports = function(passport){
         new LocalStrategy({usernameField: 'username'}, (username, password, done) => {
             // Find the "user" by username
             const query = 'select * from user.credentials where username = ?';
-            client.execute(query, [username], function(err, result) {
+            client.execute(query, [username], { prepare: true }, function(err, result) {
                 if (result.rowLength == 0) {
-                    console.log("Check 1");
                     return done(null, false, {status: false, msg: 'Det angivna kontonamnet eller lösenordet är felaktigt.'});
                 } else {
                 
@@ -43,7 +42,7 @@ module.exports = function(passport){
       
       passport.deserializeUser(function(username, done) {
         const query = 'select * from user.credentials where username = ?';
-        client.execute(query, [username], function(err, result) 
+        client.execute(query, [username], { prepare: true }, function(err, result) 
         {
             done(err, result.rows[0]);
         });

@@ -42,7 +42,7 @@ app.use('/', require('./routes/index'));
 app.use('/', require('./routes/register'));
 app.use('/', require('./routes/login'));
 app.use('/', require('./routes/validate'));
-app.use('/', require('./routes/friendreq'));
+app.use('/', require('./routes/friendrequest'));
 
 
 const PORT = process.env.port || 8080;
