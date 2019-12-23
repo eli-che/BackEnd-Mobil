@@ -8,6 +8,8 @@ To start the webserver, inside the projekt folder open a terminal and run: "npm 
 #The controll as to which if a user is signed in is in, config/auth.js
 #Anything that requires the user be logged in as have ensureAuthenticated in GET and POST.
 
+2019/12/23: Friend System tillagt samt updaterat Validering system. (Kolla commit på detta datum)
+
 2019/12/22: Allt om-kodat till cassandra databas. Inkluderar (Registering, Login, Logout, Email Validering).
 
 2019/12/16: Ändrat validation token till ett 6 siffrigt tal. Validering funkar nu.
