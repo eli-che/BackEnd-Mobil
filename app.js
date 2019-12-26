@@ -3,9 +3,11 @@ const app = express();
 const session = require('express-session');
 const passport = require('passport');
 var bodyParser = require('body-parser');
-
+// Snow-flake generation, time sortable.
+const { simpleflake } = require('simpleflakes');
 // DB Config
 const client = require('./config/keys');
+
 
 //Error Handler / Crash Handler
 process.on('uncaughtException', function(ex) {
@@ -43,6 +45,7 @@ app.use('/', require('./routes/register'));
 app.use('/', require('./routes/login'));
 app.use('/', require('./routes/validate'));
 app.use('/', require('./routes/friendrequest'));
+app.use('/', require('./routes/friendchat'));
 
 
 const PORT = process.env.port || 8080;

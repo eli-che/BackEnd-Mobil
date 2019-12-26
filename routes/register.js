@@ -10,7 +10,6 @@ const client = require('../config/keys');
 // Register Handle
 router.post('/register', (req, res) => {
     const { username, email, password, password2 } = req.body;
-    let errors = [];
     
 
     // Check Required Fields
@@ -29,12 +28,12 @@ router.post('/register', (req, res) => {
         return res.send({status: false, msg: 'Password should be at least 6 characters'});
     
     }
-    const query = 'select username from user.credentials where username = ?';
+    const query = 'select username from credentials where username = ?';
     client.execute(query, [username], { prepare: true }, function(err, result) {
         if (result.rowLength > 0) {
             return res.send({status: false, msg: 'Username is already registerd'});
         } else {
-            const query = 'select email from user.email where email = ?';
+            const query = 'select email from email where email = ?';
             client.execute(query, [email], { prepare: true }, function(err, result) {
                 if (result.rowLength > 0) {
                     return res.send({status: false, msg: 'Email is already registerd '});
@@ -48,8 +47,8 @@ router.post('/register', (req, res) => {
                             if(err) throw err;
                                 // Set password to hashed
                                 // INSERT USER
-                                    const query1 = 'INSERT INTO user.credentials (username, email, password, validate_code, active, date) VALUES (?, ?, ?, ?, ?, ?)';
-                                    const query2 = 'INSERT INTO user.email (email, username) VALUES (?, ?)';
+                                    const query1 = 'INSERT INTO credentials (username, email, password, validate_code, active, date) VALUES (?, ?, ?, ?, ?, ?) IF NOT EXISTS';
+                                    const query2 = 'INSERT INTO email (email, username) VALUES (?, ?) IF NOT EXISTS';
                                     const queries = [
                                     { query: query1, params: [username, email, hash, validate_code.toString(), false, new Date()] },
                                     { query: query2, params: [email, username] } 

@@ -8,13 +8,12 @@ const client = require('../config/keys');
 // Validate Email
 router.post('/validate', ensureAuthenticated, (req, res) => {
     const {validate_code} = req.body;
-    let errors = [];
     // Check Required Fields
     if (!validate_code){
         return res.send({status: false, msg: 'Please Enter Code'});
     }
     // Check the validate_code
-    const query = 'select validate_code from user.credentials where username = ?';
+    const query = 'select validate_code from credentials where username = ?';
     client.execute(query, [req.user.username], { prepare: true })
     .then(function(result) {
         if (result.rowLength > 0) {
@@ -25,7 +24,7 @@ router.post('/validate', ensureAuthenticated, (req, res) => {
         }
             else {
                 // Set the user/email to active when the user has validated.
-                        const query = 'UPDATE user.credentials SET active=? WHERE username=?';
+                        const query = 'UPDATE credentials SET active=? WHERE username=?';
                         client.execute(query, [true, req.user.username], { prepare: true })
                         .then(function(result) {
                             return res.send({status: true, msg: 'User Email Validated'});

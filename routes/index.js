@@ -7,4 +7,9 @@ router.get('/dashboard', ensureAuthenticated, function (req, res) {
     return res.send({user: req.user.username});
     });
 
+
+    router.get('/bench', function (req, res) {
+        return res.send('BenchTest');
+        });
+
 module.exports = router;

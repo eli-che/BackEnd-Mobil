@@ -23,7 +23,8 @@
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "random-int": "^2.0.1",
-    "randomstring": "^1.1.5"
+    "randomstring": "^1.1.5",
+    "simpleflakes": "^2.1.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.2"
