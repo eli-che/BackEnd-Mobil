@@ -39,7 +39,7 @@ Dokumentation saker som ska göras::
 # ADD ERROR HANDLING FOR EVERY DATABASE CALL, IF NOT IT MIGHT GET STUCK.
 # Don't allow special characters on email or username.
 # Change any checks on user.credentials to user.data, don't have to query their login to check if user exists for safety purposes.
-- Update time stamp to yyyy-mm-dd hh:mm:ss on all columns thats store timestamps
+- Update time stamp to yyyy-mm-dd hh:mm:ss on all columns thats store timestamps OR EPOCH time stamp
 - Login Session not persisten on server restart. Users have to loggin again after a restart. Save the session in database.
 + Login System Klart
 + Registering System Klart
