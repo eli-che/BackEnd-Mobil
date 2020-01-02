@@ -35,6 +35,7 @@ Dokumentation saker som ska göras::
 + Saker som är klara och implementerade!
 
 - Chat Api inte helt klart. friendchatgetlist Api måste göras. Den ska hämta en lista på vän-chattar du har. Så att man sedan kan välja.
+# Do not store user-sessions on the server.
 # ADD ERROR HANDLING FOR EVERY DATABASE CALL, IF NOT IT MIGHT GET STUCK.
 # Don't allow special characters on email or username.
 # Change any checks on user.credentials to user.data, don't have to query their login to check if user exists for safety purposes.
