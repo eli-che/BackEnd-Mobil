@@ -10,7 +10,7 @@ const client = require('../config/keys');
 // Register Handle
 router.post('/register', (req, res) => {
     const { username, email, password, password2 } = req.body;
-    
+    console.log(req.body);
 
     // Check Required Fields
     if (!username || !email || !password || !password2){
@@ -47,10 +47,10 @@ router.post('/register', (req, res) => {
                             if(err) throw err;
                                 // Set password to hashed
                                 // INSERT USER
-                                    const query1 = 'INSERT INTO credentials (username, email, password, validate_code, active, date) VALUES (?, ?, ?, ?, ?, ?) IF NOT EXISTS';
-                                    const query2 = 'INSERT INTO email (email, username) VALUES (?, ?) IF NOT EXISTS';
+                                    const query1 = 'INSERT INTO credentials (username, email, password, validate_code, active, date) VALUES (?, ?, ?, ?, ?, ?)';
+                                    const query2 = 'INSERT INTO email (email, username) VALUES (?, ?)';
                                     const queries = [
-                                    { query: query1, params: [username, email, hash, validate_code.toString(), false, new Date()] },
+                                    { query: query1, params: [username, email, hash, validate_code.toString(), false, Date.now()] },
                                     { query: query2, params: [email, username] } 
                                     ];
                                     client.batch(queries, { prepare: true })
@@ -58,6 +58,7 @@ router.post('/register', (req, res) => {
                                         return res.send({status: true, msg: 'User Created'});
                                     })
                                     .catch(function(err) {
+                                        console.log(err);
                                         return res.send({status: false, msg: 'User Creation Failed'});
                                     });
                             }));

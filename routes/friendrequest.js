@@ -49,9 +49,9 @@ router.post('/friendrequestaccept', ensureAuthenticated, function (req, res) {
             // The friend request exists
             // Create the friend chat too
             const chatid = simpleflake().toString();
-            const query1 = 'INSERT INTO friendlist (username, friend) VALUES (?, ?) IF NOT EXISTS';
+            const query1 = 'INSERT INTO friendlist (username, friend) VALUES (?, ?)';
             const query2 = 'DELETE FROM friendrequest where usernamereceiver = ? and usernamesender = ?'
-            const query3 = 'INSERT INTO friendchatlist (username, friend, chatid) VALUES (?, ?, ?) IF NOT EXISTS';
+            const query3 = 'INSERT INTO friendchatlist (username, friend, chatid) VALUES (?, ?, ?)';
             const queries = [
             { query: query1, params: [req.user.username, friend] },
             { query: query1, params: [friend, req.user.username] },
