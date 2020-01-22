@@ -36,6 +36,7 @@ Dokumentation saker som ska göras::
 - Saker som är klara men problem finns!
 + Saker som är klara och implementerade!
 
+- Bild / Media upladdning är ej klart.
 - Chat Api inte helt klart. friendchatgetlist Api måste göras. Den ska hämta en lista på vän-chattar du har. Så att man sedan kan välja.
 - Do not store user-sessions on the server.
 # ADD ERROR HANDLING FOR EVERY DATABASE CALL, IF NOT IT MIGHT GET STUCK.
