@@ -41,7 +41,7 @@ module.exports = function(passport){
       });
       
       passport.deserializeUser(function(username, done) {
-        const query = 'select * from credentials where username = ?';
+        const query = 'select username from credentials where username = ?';
         client.execute(query, [username], { prepare: true }, function(err, result) 
         {
             done(err, result.rows[0]);

@@ -9,11 +9,11 @@ const client = require('../config/keys');
 
 // Register Handle
 router.post('/register', (req, res) => {
-    const { username, email, password, password2 } = req.body;
+    const { username, email, number, password, password2 } = req.body;
     console.log(req.body);
 
     // Check Required Fields
-    if (!username || !email || !password || !password2){
+    if (!username || !email || !number || !password || !password2){
         return res.send({status: false, msg: 'Please fill in all fields'});
     }
 
@@ -38,6 +38,13 @@ router.post('/register', (req, res) => {
                 if (result.rowLength > 0) {
                     return res.send({status: false, msg: 'Email is already registerd '});
                         } else { 
+
+                            const query = 'select number from number where number = ?';
+                            client.execute(query, [number], { prepare: true }, function(err, result) {
+                            if (result.rowLength > 0) {
+                                    return res.send({status: false, msg: 'Number is already registerd '});
+                            } else { 
+
                             // create user
                             //Generate validation token
                             const validate_code = randomInt(111111, 999999);
@@ -47,11 +54,13 @@ router.post('/register', (req, res) => {
                             if(err) throw err;
                                 // Set password to hashed
                                 // INSERT USER
-                                    const query1 = 'INSERT INTO credentials (username, email, password, validate_code, active, date) VALUES (?, ?, ?, ?, ?, ?)';
+                                    const query1 = 'INSERT INTO credentials (username, email, number, password, validate_code, active, date) VALUES (?, ?, ?, ?, ?, ?, ?)';
                                     const query2 = 'INSERT INTO email (email, username) VALUES (?, ?)';
+                                    const query3 = 'INSERT INTO number (number, username) VALUES (?, ?)';
                                     const queries = [
-                                    { query: query1, params: [username, email, hash, validate_code.toString(), false, Date.now()] },
-                                    { query: query2, params: [email, username] } 
+                                    { query: query1, params: [username, email, number, hash, validate_code.toString(), false, Date.now()] },
+                                    { query: query2, params: [email, username] }, 
+                                    { query: query3, params: [number, username] }
                                     ];
                                     client.batch(queries, { prepare: true })
                                     .then(function() {
@@ -63,6 +72,8 @@ router.post('/register', (req, res) => {
                                     });
                             }));
                         }
+                            });
+                        } ///
 
             });
 

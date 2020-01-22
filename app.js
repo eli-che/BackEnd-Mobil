@@ -46,6 +46,7 @@ app.use('/', require('./routes/login'));
 app.use('/', require('./routes/validate'));
 app.use('/', require('./routes/friendrequest'));
 app.use('/', require('./routes/friendchat'));
+app.use('/', require('./routes/upload'));
 
 
 const PORT = process.env.port || 8080;
