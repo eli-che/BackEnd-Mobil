@@ -8,6 +8,8 @@ To start the webserver, inside the projekt folder open a terminal and run: "npm 
 #The controll as to which if a user is signed in is in, config/auth.js
 #Anything that requires the user be logged in as have ensureAuthenticated in GET and POST.
 
+2020/01/30: Migerar saker över till postgres, tex user-register.
+
 2020/01/22: Lägg upp bild börjat arbeta på!
 
 2019/12/26: Simpelt Chat system för vän till vän implementerat.

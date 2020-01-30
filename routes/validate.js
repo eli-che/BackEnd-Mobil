@@ -3,7 +3,7 @@ const router = express.Router();
 const { ensureAuthenticated } = require('../config/auth');
 
 // DB Config
-const client = require('../config/keys');
+const cassandra_client = require('../config/keys');
 
 // Validate Email
 router.post('/validate', ensureAuthenticated, (req, res) => {
@@ -14,7 +14,7 @@ router.post('/validate', ensureAuthenticated, (req, res) => {
     }
     // Check the validate_code
     const query = 'select validate_code from credentials where username = ?';
-    client.execute(query, [req.user.username], { prepare: true })
+    cassandra_client.execute(query, [req.user.username], { prepare: true })
     .then(function(result) {
         if (result.rowLength > 0) {
             // Check's that we actually get something returned 
@@ -25,7 +25,7 @@ router.post('/validate', ensureAuthenticated, (req, res) => {
             else {
                 // Set the user/email to active when the user has validated.
                         const query = 'UPDATE credentials SET active=? WHERE username=?';
-                        client.execute(query, [true, req.user.username], { prepare: true })
+                        cassandra_client.execute(query, [true, req.user.username], { prepare: true })
                         .then(function(result) {
                             return res.send({status: true, msg: 'User Email Validated'});
                         })

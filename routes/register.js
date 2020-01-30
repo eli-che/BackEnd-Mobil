@@ -4,13 +4,12 @@ const bcrypt = require('bcryptjs');
 const randomInt = require('random-int');
 
 // DB Config
-const client = require('../config/keys');
+const pg_client = require('../config/pgkeys')
 
 
 // Register Handle
 router.post('/register', (req, res) => {
     const { username, email, number, password, password2 } = req.body;
-    console.log(req.body);
 
     // Check Required Fields
     if (!username || !email || !number || !password || !password2){
@@ -28,21 +27,32 @@ router.post('/register', (req, res) => {
         return res.send({status: false, msg: 'Password should be at least 6 characters'});
     
     }
-    const query = 'select username from credentials where username = ?';
-    client.execute(query, [username], { prepare: true }, function(err, result) {
-        if (result.rowLength > 0) {
-            return res.send({status: false, msg: 'Username is already registerd'});
+    const query = {
+        name: 'check-username',
+        text: 'SELECT username FROM credentials WHERE username = $1',
+        values: [username],
+      }
+    pg_client.query(query, function(err, result) {
+        if (result.rowCount > 0) {
+            return res.send({status: false, msg: 'Username is already registered'});
         } else {
-            const query = 'select email from email where email = ?';
-            client.execute(query, [email], { prepare: true }, function(err, result) {
-                if (result.rowLength > 0) {
-                    return res.send({status: false, msg: 'Email is already registerd '});
+            const query = {
+                name: 'check-email',
+                text: 'SELECT email FROM credentials WHERE email = $1',
+                values: [email],
+              }
+              pg_client.query(query, function(err, result) {
+                if (result.rowCount > 0) {
+                    return res.send({status: false, msg: 'Email is already registered '});
                         } else { 
-
-                            const query = 'select number from number where number = ?';
-                            client.execute(query, [number], { prepare: true }, function(err, result) {
-                            if (result.rowLength > 0) {
-                                    return res.send({status: false, msg: 'Number is already registerd '});
+                            const query = {
+                                name: 'check-number',
+                                text: 'SELECT number FROM credentials WHERE number = $1',
+                                values: [number],
+                              }
+                            pg_client.query(query, function(err, result) {
+                            if (result.rowCount > 0) {
+                                    return res.send({status: false, msg: 'Number is already registered '});
                             } else { 
 
                             // create user
@@ -54,15 +64,12 @@ router.post('/register', (req, res) => {
                             if(err) throw err;
                                 // Set password to hashed
                                 // INSERT USER
-                                    const query1 = 'INSERT INTO credentials (username, email, number, password, validate_code, active, date) VALUES (?, ?, ?, ?, ?, ?, ?)';
-                                    const query2 = 'INSERT INTO email (email, username) VALUES (?, ?)';
-                                    const query3 = 'INSERT INTO number (number, username) VALUES (?, ?)';
-                                    const queries = [
-                                    { query: query1, params: [username, email, number, hash, validate_code.toString(), false, Date.now()] },
-                                    { query: query2, params: [email, username] }, 
-                                    { query: query3, params: [number, username] }
-                                    ];
-                                    client.batch(queries, { prepare: true })
+                                const query = {
+                                    name: 'create-user',
+                                    text: 'INSERT INTO credentials (username, email, number, password, validate_code, active, date) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+                                    values: [username, email, number, hash, validate_code.toString(), false, Date.now()], 
+                                  }
+                                  pg_client.query(query)
                                     .then(function() {
                                         return res.send({status: true, msg: 'User Created'});
                                     })
@@ -73,7 +80,7 @@ router.post('/register', (req, res) => {
                             }));
                         }
                             });
-                        } ///
+                        } 
 
             });
 

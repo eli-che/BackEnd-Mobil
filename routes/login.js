@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const { ensureAuthenticated } = require('../config/auth');
 
 // Login Handle (Post) 
 router.post('/login', function(req, res, next) {
@@ -16,7 +17,7 @@ router.post('/login', function(req, res, next) {
   });
 
 // Logout Handle
-router.get('/logout', (req,res) => {
+router.get('/logout', ensureAuthenticated, (req,res) => {
     req.logout();
     return res.send({status: true, msg: 'Logout Successful'});
 });

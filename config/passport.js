@@ -3,15 +3,19 @@ const cassandra = require('cassandra-driver');
 const bcrypt = require('bcryptjs');
 
 // DB Config
-const client = require('../config/keys');
+const pg_client = require('../config/pgkeys')
 
 module.exports = function(passport){
     passport.use(
         new LocalStrategy({usernameField: 'username'}, (username, password, done) => {
             // Find the "user" by username
-            const query = 'select * from credentials where username = ?';
-            client.execute(query, [username], { prepare: true }, function(err, result) {
-                if (result.rowLength == 0) {
+            const query = {
+                name: 'login',
+                text: 'select username, password from credentials where username = $1',
+                values: [username],
+              }
+            pg_client.query(query, function(err, result) {
+                if (result.rowCount == 0) {
                     return done(null, false, {status: false, msg: 'Det angivna kontonamnet eller lösenordet är felaktigt.'});
                 } else {
                 
@@ -41,8 +45,12 @@ module.exports = function(passport){
       });
       
       passport.deserializeUser(function(username, done) {
-        const query = 'select username from credentials where username = ?';
-        client.execute(query, [username], { prepare: true }, function(err, result) 
+          const query = {
+            name: 'login-deserialize',
+            text: 'select username from credentials where username = $1',
+            values: [username],
+          }
+        pg_client.query(query, function(err, result) 
         {
             done(err, result.rows[0]);
         });
