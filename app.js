@@ -29,7 +29,7 @@ require('./config/passport')(passport);
 
 // Express Session
 app.use(session({
-    secret: 'secret',
+    secret: 'dev-app',
     resave: true,
     saveUninitialized: true
    // cookie: { secure: true }

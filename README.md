@@ -6,7 +6,12 @@ To start the webserver, inside the projekt folder open a terminal and run: "npm 
 :coffee: :pizza: :pizza: :coffee: :smiley: 
 
 #The controll as to which if a user is signed in is in, config/auth.js
-#Anything that requires the user be logged in as have ensureAuthenticated in GET and POST.
+#Anything that requires the user be logged in as have ensureAuthenticated in GET and POST.'
+
+2020/01/31 Jobbat på Media post och att kunna söka efter posts i närheten av dig.
+Jag har kvar att lägga till ålders sökning, sen har måste jag lägga till så att om någon äldre person inte ser några
+posts så kan han se yngre posts kanske? Eller låta de klara sig själv?
+Måste även lägga till taggs och sånt. Men det kommer sen.
 
 2020/01/30: Migerar saker över till postgres, tex user-register.
 
@@ -38,6 +43,9 @@ Dokumentation saker som ska göras::
 - Saker som är klara men problem finns!
 + Saker som är klara och implementerade!
 
+- Media posts osv.
+- Redis för login system.
+- cookie session to true when going to production / deployment
 - Bild / Media upladdning är ej klart.
 - Chat Api inte helt klart. friendchatgetlist Api måste göras. Den ska hämta en lista på vän-chattar du har. Så att man sedan kan välja.
 - Do not store user-sessions on the server.

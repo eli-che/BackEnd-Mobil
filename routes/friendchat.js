@@ -43,10 +43,8 @@ router.post('/friendchatsend', ensureAuthenticated, function (req, res) {
             return res.send({status: false, msg: 'You are not a part of this chat'});
         } else {
             // The user was port of the chat, let's insert the message.
-            const messageid = simpleflake().toString();
-            const time = Date.now();
             const query = 'INSERT INTO friendchat (chatid, message_id, sender, content, created_at) VALUES (?, ?, ?, ?, ?) IF NOT EXISTS';
-            cassandra_client.execute(query, [chatid, messageid, req.user.username, content, time], { prepare: true }, function(err, result) {
+            cassandra_client.execute(query, [chatid, simpleflake().toString(), req.user.username, content, Date.now()], { prepare: true }, function(err, result) {
                 if (err){
                     return res.send({status: false, msg: 'Something went wrong sending message'});
                 } else {

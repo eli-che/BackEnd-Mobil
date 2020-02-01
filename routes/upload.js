@@ -4,7 +4,7 @@ const { ensureAuthenticated } = require('../config/auth');
 // Snow-flake generation, time sortable.
 const { simpleflake } = require('simpleflakes');
 // DB Config
-const cassandra_client = require('../config/keys');
+const pg_client = require('../config/pgkeys')
 //Image
 const path = require('path')
 const multer = require('multer');
@@ -37,24 +37,123 @@ const upload = multer({
     fileFilter: fileFilter
 });
 
-router.post('/upload', ensureAuthenticated, upload.single('media'), function (req, res) {
-   // console.log(req.file);
-  // Example to retrive data from form  console.log(req.body.title); 
-  var mediaid = "https://image.shutterstock.com/image-vector/diverse-multiracial-multicultural-group-people-260nw-1303850926.jpg"
-    const query = 'INSERT INTO media (mediaid) VALUES (?) IF NOT EXISTS';
-    cassandra_client.execute(query, [mediaid], { prepare: true }, function(err, result) {
-              
+//router.post('/upload', ensureAuthenticated, upload.single('media'), function (req, res) {
 
+router.post('/upload', ensureAuthenticated, function (req, res) {
+    const {content, country, state, city} = req.body;
 
+    const query = {
+        name: 'upload-media',
+        text: 'INSERT INTO mediapost (username, postid, contents, image, created_at, country, states, city, likes, coments) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+        values: [req.user.username, simpleflake().toString(), content, "tobeimageurl.com", Date.now(), country, state, city, 0, 0],
+      }
+    pg_client.query(query, function(err, result) { 
+        if (err){
+            return res.send({status: false, msg: 'Something went wrong uploading'});
+        }
+        else {
+            return res.send({status: true, msg: 'Media Uploaded!'});
+        }
     });
-    return res.send({status: true, msg: 'Media Uploaded'});
+  
 });
 
 
-router.get('/media', ensureAuthenticated, function (req, res) {
-    const query = 'select mediaid from media';
-    cassandra_client.execute(query, { prepare: true }, function(err, result) {
-                return res.send(result.rows);          
+router.post('/media', ensureAuthenticated, function (req, res) {
+    var {citycursor, statecursor, countrycursor, allcursor, country, state, city} = req.body;
+    if (citycursor == 0){citycursor = 8999999999999999999;}
+    if (statecursor == 0){statecursor = 8999999999999999999;}
+    if (countrycursor == 0){countrycursor = 8999999999999999999;}
+    if (allcursor == 0){allcursor = 8999999999999999999;}
+
+    //Search City
+    const query = {
+        name: 'get-media-city',
+        text: 'select * from mediapost where postid < $1 and country = $2 and states = $3 and city = $4 ORDER BY postid DESC LIMIT 6',
+        values: [citycursor, country, state, city]
+        }
+    pg_client.query(query, function(err, result) { 
+        if (err){
+            console.log(err);
+            return res.send({status: false, msg: 'Something went wrong retriving media 1'});
+        } 
+        else {
+
+            if (result.rowCount > 5) {
+                //More than 3 posts available
+                // Get the cursor here for city and return it.
+            return res.send(result.rows);
+            } 
+            else {
+                //Search State
+                //Less than 3 posts available
+                const query = {
+                    name: 'get-media-state',
+                    text: 'select * from mediapost where postid < $1 and country = $2 and states = $3 and city <> $4 ORDER BY postid DESC LIMIT 6',
+                    values: [statecursor, country, state, city]
+                    }
+                pg_client.query(query, function(err, result) {
+                    if (err){
+                        console.log(err);
+                        return res.send({status: false, msg: 'Something went wrong retriving media 2'});
+                    }
+
+                    else { 
+                        if (result.rowCount > 5) {
+                        return res.send(result.rows);
+                        }
+                        else {
+                            //Search country
+                            const query = {
+                                name: 'get-media-country',
+                                text: 'select * from mediapost where postid < $1 and country = $2 and states <> $3 and city <> $4 ORDER BY postid DESC LIMIT 6',
+                                values: [countrycursor, country, state, city]
+                                }
+                                pg_client.query(query, function(err, result) {
+                                    if (err){
+                                        console.log(err);
+                                        return res.send({status: false, msg: 'Something went wrong retriving media 3'});
+                                    }
+                                    else {
+                                        if (result.rowCount > 5) {
+                                        return res.send(result.rows);
+                                        }
+                                        else {
+                                            //Search world
+                                            const query = {
+                                                name: 'get-media-all',
+                                                text: 'select * from mediapost where postid < $1 and country <> $2 and states <> $3 and city <> $4 ORDER BY postid DESC LIMIT 6',
+                                                values: [countrycursor, country, state, city]
+                                                }
+                                                pg_client.query(query, function(err, result) {
+                                                    if (err){
+                                                        console.log(err);
+                                                        return res.send({status: false, msg: 'Something went wrong retriving media 4'});
+                                                    }
+                                                    else { 
+                                                        if (result.rowCount > 5) {
+                                                            return res.send(result.rows);
+                                                            }
+                                                            else {
+                                                                //Add more age
+                                                                return res.send({status: false, msg: 'This is no more posts'});
+                                                            }
+
+
+                                                    }
+                
+                                                });
+
+                                        }
+                                    }
+                                });
+
+                        }
+                    }
+
+                 });
+            }
+        }
     });
 
 });
