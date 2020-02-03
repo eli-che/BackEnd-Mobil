@@ -13,6 +13,8 @@ Jag har kvar att lägga till ålders sökning, sen har måste jag lägga till s�
 posts så kan han se yngre posts kanske? Eller låta de klara sig själv?
 Måste även lägga till taggs och sånt. Men det kommer sen.
 
+2020/02/03: Lagt till redis memory store, för att spara user sessions.
+
 2020/01/30: Migerar saker över till postgres, tex user-register.
 
 2020/01/22: Lägg upp bild börjat arbeta på!

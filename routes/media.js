@@ -40,12 +40,12 @@ const upload = multer({
 //router.post('/upload', ensureAuthenticated, upload.single('media'), function (req, res) {
 
 router.post('/upload', ensureAuthenticated, function (req, res) {
-    const {content, country, state, city} = req.body;
+    const {age, content, country, state, city} = req.body;
 
     const query = {
         name: 'upload-media',
-        text: 'INSERT INTO mediapost (username, postid, contents, image, created_at, country, states, city, likes, coments) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
-        values: [req.user.username, simpleflake().toString(), content, "tobeimageurl.com", Date.now(), country, state, city, 0, 0],
+        text: 'INSERT INTO mediapost (username, postid, contents, image, created_at, country, states, city, likes, coments, age) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)',
+        values: [req.user.username, simpleflake().toString(), content, "tobeimageurl.com", Date.now(), country, state, city, 0, 0, age],
       }
     pg_client.query(query, function(err, result) { 
         if (err){
@@ -59,18 +59,26 @@ router.post('/upload', ensureAuthenticated, function (req, res) {
 });
 
 
-router.post('/media', ensureAuthenticated, function (req, res) {
-    var {citycursor, statecursor, countrycursor, allcursor, country, state, city} = req.body;
+router.post('/mediaclose', ensureAuthenticated, function (req, res) {
+    var {age, citycursor, statecursor, countrycursor, allcursor, country, state, city} = req.body;
     if (citycursor == 0){citycursor = 8999999999999999999;}
     if (statecursor == 0){statecursor = 8999999999999999999;}
     if (countrycursor == 0){countrycursor = 8999999999999999999;}
     if (allcursor == 0){allcursor = 8999999999999999999;}
+    age = parseInt(age);
+    age2 = age / 4;
+    agelow = Math.round(age - age2);
+    agehigh = Math.round(age + age2);
+    console.log(age);
+    console.log(age2);
+    console.log(agelow);
+    console.log(agehigh);
 
     //Search City
     const query = {
         name: 'get-media-city',
-        text: 'select * from mediapost where postid < $1 and country = $2 and states = $3 and city = $4 ORDER BY postid DESC LIMIT 6',
-        values: [citycursor, country, state, city]
+        text: 'select * from mediapost where postid < $1 and country = $2 and states = $3 and city = $4 and age >= $5 and age <= $6 ORDER BY postid DESC LIMIT 3',
+        values: [citycursor, country, state, city, agelow, agehigh]
         }
     pg_client.query(query, function(err, result) { 
         if (err){
@@ -79,7 +87,7 @@ router.post('/media', ensureAuthenticated, function (req, res) {
         } 
         else {
 
-            if (result.rowCount > 5) {
+            if (result.rowCount > 2) {
                 //More than 3 posts available
                 // Get the cursor here for city and return it.
             return res.send(result.rows);
@@ -89,8 +97,8 @@ router.post('/media', ensureAuthenticated, function (req, res) {
                 //Less than 3 posts available
                 const query = {
                     name: 'get-media-state',
-                    text: 'select * from mediapost where postid < $1 and country = $2 and states = $3 and city <> $4 ORDER BY postid DESC LIMIT 6',
-                    values: [statecursor, country, state, city]
+                    text: 'select * from mediapost where postid < $1 and country = $2 and states = $3 and city <> $4 and age >= $5 and age <= $6 ORDER BY postid DESC LIMIT 3',
+                    values: [statecursor, country, state, city, agelow, agehigh]
                     }
                 pg_client.query(query, function(err, result) {
                     if (err){
@@ -99,15 +107,15 @@ router.post('/media', ensureAuthenticated, function (req, res) {
                     }
 
                     else { 
-                        if (result.rowCount > 5) {
+                        if (result.rowCount > 2) {
                         return res.send(result.rows);
                         }
                         else {
                             //Search country
                             const query = {
                                 name: 'get-media-country',
-                                text: 'select * from mediapost where postid < $1 and country = $2 and states <> $3 and city <> $4 ORDER BY postid DESC LIMIT 6',
-                                values: [countrycursor, country, state, city]
+                                text: 'select * from mediapost where postid < $1 and country = $2 and states <> $3 and city <> $4 and age >= $5 and age <= $6 ORDER BY postid DESC LIMIT 3',
+                                values: [countrycursor, country, state, city, agelow, agehigh]
                                 }
                                 pg_client.query(query, function(err, result) {
                                     if (err){
@@ -115,15 +123,15 @@ router.post('/media', ensureAuthenticated, function (req, res) {
                                         return res.send({status: false, msg: 'Something went wrong retriving media 3'});
                                     }
                                     else {
-                                        if (result.rowCount > 5) {
+                                        if (result.rowCount > 2) {
                                         return res.send(result.rows);
                                         }
                                         else {
                                             //Search world
                                             const query = {
                                                 name: 'get-media-all',
-                                                text: 'select * from mediapost where postid < $1 and country <> $2 and states <> $3 and city <> $4 ORDER BY postid DESC LIMIT 6',
-                                                values: [countrycursor, country, state, city]
+                                                text: 'select * from mediapost where postid < $1 and country <> $2 and states <> $3 and city <> $4 and age >= $5 and age <= $6 ORDER BY postid DESC LIMIT 3',
+                                                values: [countrycursor, country, state, city, agelow, agehigh]
                                                 }
                                                 pg_client.query(query, function(err, result) {
                                                     if (err){
@@ -131,7 +139,7 @@ router.post('/media', ensureAuthenticated, function (req, res) {
                                                         return res.send({status: false, msg: 'Something went wrong retriving media 4'});
                                                     }
                                                     else { 
-                                                        if (result.rowCount > 5) {
+                                                        if (result.rowCount > 2) {
                                                             return res.send(result.rows);
                                                             }
                                                             else {

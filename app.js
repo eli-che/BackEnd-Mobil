@@ -3,10 +3,13 @@ const app = express();
 const session = require('express-session');
 const passport = require('passport');
 var bodyParser = require('body-parser');
+const redisStore = require('connect-redis')(session);	
+
 // Snow-flake generation, time sortable.
 const { simpleflake } = require('simpleflakes');
 // DB Config
 const client = require('./config/keys');
+const redis_client = require('./config/redis');
 
 
 //Error Handler / Crash Handler
@@ -29,6 +32,7 @@ require('./config/passport')(passport);
 
 // Express Session
 app.use(session({
+    store: new redisStore({ host: 'localhost', port: 6379, client: redis_client}),
     secret: 'dev-app',
     resave: true,
     saveUninitialized: true
@@ -46,7 +50,7 @@ app.use('/', require('./routes/login'));
 app.use('/', require('./routes/validate'));
 app.use('/', require('./routes/friendrequest'));
 app.use('/', require('./routes/friendchat'));
-app.use('/', require('./routes/upload'));
+app.use('/', require('./routes/media'));
 
 
 const PORT = process.env.port || 8080;
