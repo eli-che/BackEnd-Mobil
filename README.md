@@ -8,12 +8,13 @@ To start the webserver, inside the projekt folder open a terminal and run: "npm 
 #The controll as to which if a user is signed in is in, config/auth.js
 #Anything that requires the user be logged in as have ensureAuthenticated in GET and POST.'
 
+
+2020/02/03: Lagt till redis memory store, för att spara user sessions.
+
 2020/01/31 Jobbat på Media post och att kunna söka efter posts i närheten av dig.
 Jag har kvar att lägga till ålders sökning, sen har måste jag lägga till så att om någon äldre person inte ser några
 posts så kan han se yngre posts kanske? Eller låta de klara sig själv?
 Måste även lägga till taggs och sånt. Men det kommer sen.
-
-2020/02/03: Lagt till redis memory store, för att spara user sessions.
 
 2020/01/30: Migerar saker över till postgres, tex user-register.
 
